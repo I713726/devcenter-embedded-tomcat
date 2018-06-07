@@ -16,6 +16,11 @@ import com.srini.alexa.model.Status;
 @Path("/alexaskill")
 public class AlexaSkillService {
  
+	
+	public AlexaSkillService(){
+		
+	}
+	
 	@GET
 	@Path("/{param}")
 	public Response getMsg(@PathParam("param") String msg) {
