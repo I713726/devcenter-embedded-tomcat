@@ -12,6 +12,8 @@ import com.srini.alexa.model.AlexaRequest;
 import com.srini.alexa.model.Product;
 import com.srini.alexa.model.Status;
 import com.srini.alexa.model.response.AlexaResponse;
+import com.srini.alexa.model.response.Card;
+import com.srini.alexa.model.response.Directives;
 import com.srini.alexa.model.response.OutputSpeech;
 import com.srini.alexa.model.response.Reprompt;
 import com.srini.alexa.model.response.Response;
@@ -56,7 +58,10 @@ public class AlexaSkillService {
 		RepromptOutputSpeech.setSsml("<speak>SSML text string to speak</speak>");
 		reprompt.setOutputSpeech(RepromptOutputSpeech);
 		response.setReprompt(reprompt);
-		return buildResponse(sessionAttributes, response, false);
+		String shouldEndSession = "false";
+		response.setShouldEndSession(shouldEndSession);
+		response.setCard(new Card());
+		return buildResponse(sessionAttributes, response);
     }
 	
 	@POST
@@ -68,7 +73,7 @@ public class AlexaSkillService {
         return new Status("SUCCESS", "Inserted " + product.getName());
     }
 	
-	private AlexaResponse buildResponse(SessionAttributes sessionAttributes, Response response, boolean shouldEndSession) {
+	private AlexaResponse buildResponse(SessionAttributes sessionAttributes, Response response) {
 		AlexaResponse alexaResponse = new AlexaResponse();
 		alexaResponse.setVersion("1.0");
 		alexaResponse.setSessionAttributes(sessionAttributes);
