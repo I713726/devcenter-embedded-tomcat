@@ -9,8 +9,6 @@
   <url>http://maven.apache.org</url>
   <properties>
     <tomcat.version>8.5.23</tomcat.version>
-     <jersey.version>2.26-b03</jersey.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
   <repositories>
 		<repository>
@@ -20,17 +18,6 @@
 			<layout>default</layout>
 		</repository>
 	</repositories>
-	<dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.glassfish.jersey</groupId>
-                <artifactId>jersey-bom</artifactId>
-                <version>${jersey.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
   <dependencies>
     <dependency>
         <groupId>org.apache.tomcat.embed</groupId>
@@ -63,13 +50,19 @@
 			<version>4.8.2</version>
 			<scope>test</scope>
 	</dependency>
+
+	<dependency>
+		<groupId>com.sun.jersey</groupId>
+		<artifactId>jersey-server</artifactId>
+		<version>1.8</version>
+	</dependency>
 	<dependency>
             <groupId>org.glassfish.jersey.containers</groupId>
             <artifactId>jersey-container-servlet-core</artifactId>
             <!-- use the following artifactId if you don't need servlet 2.x compatibility -->
             <!-- artifactId>jersey-container-servlet</artifactId -->
             <version>2.27</version>
-     </dependency>
+        </dependency>
 	<!-- uncomment this to get JSON support -->
      <dependency>
 	    <groupId>org.glassfish.jersey.media</groupId>
@@ -78,7 +71,6 @@
 	</dependency>
 
   </dependencies>
- 
   <build>
     <finalName>embeddedTomcatSample</finalName>
     <plugins>
