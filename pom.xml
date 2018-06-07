@@ -56,6 +56,12 @@
 		<artifactId>jersey-server</artifactId>
 		<version>1.8</version>
 	</dependency>
+	<!-- uncomment this to get JSON support -->
+     <dependency>
+	    <groupId>org.glassfish.jersey.media</groupId>
+	    <artifactId>jersey-media-moxy</artifactId>
+	    <version>2.26</version>
+	</dependency>
 
   </dependencies>
   <build>

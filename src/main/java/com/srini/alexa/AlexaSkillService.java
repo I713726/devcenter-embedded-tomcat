@@ -29,7 +29,7 @@ public class AlexaSkillService {
 	@POST
     @Path("/alexarequest")
     @Consumes(MediaType.APPLICATION_JSON)
-    //@Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response insert(AlexaRequest alexaRequest) {
 		String output = "Alexa say : " + alexaRequest.getRequest().getType();
 		return Response.status(200).entity(output).build();
@@ -37,6 +37,7 @@ public class AlexaSkillService {
 	
 	@POST
     @Path("/insert")
+	
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Status insert(Product product) {
