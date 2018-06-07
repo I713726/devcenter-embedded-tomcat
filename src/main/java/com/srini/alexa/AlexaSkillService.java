@@ -10,6 +10,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.srini.alexa.model.AlexaRequest;
+import com.srini.alexa.model.Product;
+import com.srini.alexa.model.Status;
  
 @Path("/alexaskill")
 public class AlexaSkillService {
@@ -31,6 +33,14 @@ public class AlexaSkillService {
     public Response insert(AlexaRequest alexaRequest) {
 		String output = "Alexa say : " + alexaRequest.getRequest().getType();
 		return Response.status(200).entity(output).build();
+    }
+	
+	@POST
+    @Path("/insert")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Status insert(Product product) {
+        return new Status("SUCCESS", "Inserted " + product.getName());
     }
  
 }
