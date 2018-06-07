@@ -1,5 +1,6 @@
 package com.srini.alexa;
  
+import javax.json.Json;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -13,7 +14,6 @@ import com.srini.alexa.model.Product;
 import com.srini.alexa.model.Status;
 import com.srini.alexa.model.response.AlexaResponse;
 import com.srini.alexa.model.response.Card;
-import com.srini.alexa.model.response.Directives;
 import com.srini.alexa.model.response.OutputSpeech;
 import com.srini.alexa.model.response.Reprompt;
 import com.srini.alexa.model.response.Response;
@@ -33,7 +33,7 @@ public class AlexaSkillService {
  
 		String output = "Jersey say : " + msg;
  
-		return output;
+		return output + json;
  
 	}
 	
@@ -80,5 +80,12 @@ public class AlexaSkillService {
 		alexaResponse.setResponse(response);
 		return alexaResponse;
 	}
+	
+	String json = Json.createObjectBuilder()
+            .add("key1", "value1")
+            .add("key2", "value2")
+            .build()
+            .toString();
+	
  
 }
