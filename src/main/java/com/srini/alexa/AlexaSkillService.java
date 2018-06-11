@@ -18,22 +18,12 @@ import javax.ws.rs.core.MediaType;
 import com.srini.alexa.model.request.Product;
 import com.srini.alexa.model.request.Status;
  
-@Path("/alexaskill")
+@Path("/aiskill")
 public class AlexaSkillService {
  
 	
 	public AlexaSkillService(){
 		
-	}
-	
-	@GET
-	@Path("/{param}")
-	public String getMsg(@PathParam("param") String msg) {
- 
-		String output = "Jersey say : " + msg;
- 
-		return output + json;
- 
 	}
 	
 	@POST
@@ -130,15 +120,6 @@ public class AlexaSkillService {
 		
 	}
 	
-	@POST
-    @Path("/insert")
-	
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Status insert(Product product) {
-        return new Status("SUCCESS", "Inserted " + product.getName());
-    }
-	
 //	private AlexaResponse buildResponse(SessionAttributes sessionAttributes, Response response) {
 //		AlexaResponse alexaResponse = new AlexaResponse();
 //		alexaResponse.setVersion("1.0");
@@ -161,6 +142,16 @@ public class AlexaSkillService {
             .add("key2", "value2")
             .build()
             .toString();
+	
+	@GET
+	@Path("/{param}")
+	public String getMsg(@PathParam("param") String msg) {
+ 
+		String output = "Jersey say : " + msg;
+ 
+		return output + json;
+ 
+	}
 	
  
 }
