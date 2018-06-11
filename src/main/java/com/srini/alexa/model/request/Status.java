@@ -1,4 +1,4 @@
-package com.srini.alexa.model;
+package com.srini.alexa.model.request;
 
 import java.io.Serializable;
 import javax.xml.bind.annotation.XmlRootElement;

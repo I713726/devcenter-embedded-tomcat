@@ -9,9 +9,9 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import com.srini.alexa.model.AlexaRequest;
-import com.srini.alexa.model.Product;
-import com.srini.alexa.model.Status;
+import com.srini.alexa.model.request.AlexaRequest;
+import com.srini.alexa.model.request.Product;
+import com.srini.alexa.model.request.Status;
 import com.srini.alexa.model.response.AlexaResponse;
 import com.srini.alexa.model.response.Card;
 import com.srini.alexa.model.response.OutputSpeech;
