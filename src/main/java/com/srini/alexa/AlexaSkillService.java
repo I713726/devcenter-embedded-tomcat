@@ -66,12 +66,15 @@ public class AlexaSkillService {
     }
 	
 	private void parseJsonRequestString(String jsonRequest) throws Exception {
+		System.out.println("Elements input json"+jsonRequest);
 		//Parse the JSON data present in the string format
 		JSONParser parse = new JSONParser();
 		//Type caste the parsed json data in json object
 		JSONObject jobj = (JSONObject)parse.parse(jsonRequest);
+		System.out.println("Elements input json jobj"+jobj);
 		//Store the JSON object in JSON array as objects (For level 1 array element i.e Results)
 		JSONArray jsonarr_1 = (JSONArray) jobj.get("session");
+		System.out.println("Elements input json jsonarr_1"+jsonarr_1);
 		//Get data for Results array
 		for(int i=0;i<jsonarr_1.size();i++)
 		{
@@ -79,10 +82,10 @@ public class AlexaSkillService {
 		  //Get the index of the JSON object and print the values as per the index
 		  JSONObject jsonobj_1 = (JSONObject)jsonarr_1.get(i);
 		  //Store the JSON object in JSON array as objects (For level 2 array element i.e Address Components)
-		  JSONArray jsonarr_2 = (JSONArray) jsonobj_1.get("address_components");
+		  JSONArray jsonarr_2 = (JSONArray) jsonobj_1.get("application");
 		  System.out.println("Elements under results array");
-		  System.out.println("\nPlace id: " +jsonobj_1.get("place_id"));
-		  System.out.println("Types: " +jsonobj_1.get("types"));
+		  System.out.println("\nSession id: " +jsonobj_1.get("sessionId"));
+		  System.out.println("new: " +jsonobj_1.get("new"));
 		  //Get data for the Address Components array
 		  System.out.println("Elements under address_components array");
 		  System.out.println("The long names, short names and types are:");
@@ -92,12 +95,10 @@ public class AlexaSkillService {
 		     //Get the index of the JSON objects and print the values as per the index
 		     JSONObject jsonobj_2 = (JSONObject) jsonarr_2.get(j);
 		     //Store the data as String objects
-		     String str_data1 = (String) jsonobj_2.get("long_name");
+		     String str_data1 = (String) jsonobj_2.get("applicationId");
 		     System.out.println(str_data1);
-		     String str_data2 = (String) jsonobj_2.get("short_name");
-		     System.out.println(str_data2);
-		     System.out.println(jsonobj_2.get("types"));
-		     System.out.println("\n");
+		    
+		      System.out.println("\n");
 		  }
 		}
 	}
