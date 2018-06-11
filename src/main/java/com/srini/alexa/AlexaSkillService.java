@@ -37,10 +37,10 @@ public class AlexaSkillService {
 	}
 	
 	@POST
-    @Path("/alexarequest")
+    @Path("/alexaskill")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public String alexaIn(String alexaRequest) throws Exception {
+    public String alexaSkill(String alexaRequest) throws Exception {
 		
 		JsonReader reader = Json.createReader(new StringReader(alexaRequest));
         
@@ -49,16 +49,58 @@ public class AlexaSkillService {
         JsonObject session_jsondata = alexaRequestObject.getJsonObject("session");
         JsonObject context_jsondata = alexaRequestObject.getJsonObject("context");
         JsonObject request_jsondata = alexaRequestObject.getJsonObject("request");
-		
-		JsonObject sessionJson = Json.createObjectBuilder()
-				.add("questionNo", "1")
-				.build();
-		
-		return buildResponse("SSML", "outputSpeechText", "repromptoutputSpeechText", "false", sessionJson);
-		
+        
+        if ("LaunchRequest".equalsIgnoreCase(request_jsondata.getString("type")) ) {
+            //console.log('In side LaunchRequest :\n', req.body.request.type);
+    		//var dataRow = readData(inputId);
+    		//console.log('datRow :', dataRow );
+    		//console.log('Excel First Name :\n', dataRow.FirstName);
+    		
+        	JsonObject sessionJson = Json.createObjectBuilder().add("questionNo", "0").build();
+        	
+        	return buildResponse("SSML", "<speak>Welcome to Voya 401k service, to get started please say the four digit PIN you setup to enabling the skill? </speak>", 
+        			"<speak>to get started please say the four digit PIN you setup to enabling the skill?</speak>", "true", sessionJson);
+   		
+        } else {
+        	JsonObject sessionJson = Json.createObjectBuilder().build();
+        	return buildResponse("SSML", "<speakInvalid PIN or No Account setup!</speak>", "", "true", sessionJson);
+        }
+        
     }
 	
-private String buildResponse(String outputSpeechType, String speech, String repromptspeech, String shouldEndSession, JsonObject sessionJson) {
+	@POST
+    @Path("/googlehomeskill")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public String googleHomeSkill(String alexaRequest) throws Exception {
+		
+		JsonReader reader = Json.createReader(new StringReader(alexaRequest));
+        
+        JsonObject alexaRequestObject = reader.readObject();
+        
+        JsonObject session_jsondata = alexaRequestObject.getJsonObject("session");
+        JsonObject context_jsondata = alexaRequestObject.getJsonObject("context");
+        JsonObject request_jsondata = alexaRequestObject.getJsonObject("request");
+        
+        if ("LaunchRequest".equalsIgnoreCase(request_jsondata.getString("type")) ) {
+            //console.log('In side LaunchRequest :\n', req.body.request.type);
+    		//var dataRow = readData(inputId);
+    		//console.log('datRow :', dataRow );
+    		//console.log('Excel First Name :\n', dataRow.FirstName);
+    		
+        	JsonObject sessionJson = Json.createObjectBuilder().add("questionNo", "0").build();
+        	
+        	return buildResponse("SSML", "<speak>Welcome to Voya 401k service, to get started please say the four digit PIN you setup to enabling the skill? </speak>", 
+        			"<speak>to get started please say the four digit PIN you setup to enabling the skill?</speak>", "true", sessionJson);
+   		
+        } else {
+        	JsonObject sessionJson = Json.createObjectBuilder().build();
+        	return buildResponse("SSML", "<speakInvalid PIN or No Account setup!</speak>", "", "true", sessionJson);
+        }
+        
+    }
+	
+	private String buildResponse(String outputSpeechType, String speech, String repromptspeech, String shouldEndSession, JsonObject sessionJson) {
 		
 		JsonObject alexaJsonResponseObj = Json.createObjectBuilder()
                 .add("version", "1.0")
