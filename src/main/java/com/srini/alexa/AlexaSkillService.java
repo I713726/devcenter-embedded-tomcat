@@ -2,6 +2,7 @@ package com.srini.alexa;
  
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.HashMap;
 
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -15,15 +16,18 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import com.srini.alexa.model.request.Product;
-import com.srini.alexa.model.request.Status;
+import com.srini.alexa.model.UserData;
  
 @Path("/aiskill")
 public class AlexaSkillService {
  
 	
+	 private static HashMap<String, UserData> userDataMap;
+
+	    
+
 	public AlexaSkillService(){
-		
+		initializeUserData();
 	}
 	
 	@POST
@@ -69,25 +73,61 @@ public class AlexaSkillService {
         JsonObject alexaRequestObject = reader.readObject();
         
         JsonObject session_jsondata = alexaRequestObject.getJsonObject("session");
-        JsonObject context_jsondata = alexaRequestObject.getJsonObject("context");
+        //JsonObject context_jsondata = alexaRequestObject.getJsonObject("context");
         JsonObject request_jsondata = alexaRequestObject.getJsonObject("request");
         
         if ("LaunchRequest".equalsIgnoreCase(request_jsondata.getString("type")) ) {
-            //console.log('In side LaunchRequest :\n', req.body.request.type);
+            //log('In side LaunchRequest :\n', req.body.request.type);
     		//var dataRow = readData(inputId);
     		//console.log('datRow :', dataRow );
     		//console.log('Excel First Name :\n', dataRow.FirstName);
     		
-        	JsonObject sessionJson = Json.createObjectBuilder().add("questionNo", "0").build();
+        	JsonObject sessionJson = Json.createObjectBuilder().build();
         	
         	return buildResponse("SSML", "<speak>Welcome to Voya 401k service, to get started please say the four digit PIN you setup to enabling the skill? </speak>", 
-        			"<speak>to get started please say the four digit PIN you setup to enabling the skill?</speak>", "true", sessionJson);
+        			"<speak>to get started please say the four digit PIN you setup to enabling the skill?</speak>", "false", sessionJson);
    		
-        } else {
+        } else if ("SessionEndedRequest".equalsIgnoreCase(request_jsondata.getString("type"))) {
+    		//console.log('In side SessionEndedRequest :\n', req.body.request.type);
+            if ("ERROR".equalsIgnoreCase(request_jsondata.getString("reason"))) {
+               // log.error("Alexa ended the session due to an error");
+            }
+            /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+             Per Alexa docs, we shouldn't send ANY response here... weird, I know.
+             * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+         } else if ("IntentRequest".equalsIgnoreCase(request_jsondata.getString("type"))) {
+        	//get Intent Json object
+        	JsonObject intent_jsondata = request_jsondata.getJsonObject("intent");
+        	//get slots Json object
+        	JsonObject slots_jsondata = intent_jsondata.getJsonObject("slots");
+        	//get session attributes json object
+        	JsonObject attribute_jsondata = session_jsondata.getJsonObject("attributes");
+        	
+        	if ( "VoyaPINIntent".equalsIgnoreCase(intent_jsondata.getString("name")) && (slots_jsondata != null) && (slots_jsondata.getJsonObject("pin") != null) 
+        			&& ((slots_jsondata.getJsonObject("pin")).getString("value") != "" )) {
+        		UserData userData = getUserData((slots_jsondata.getJsonObject("pin")).getString("value"));
+        		
+        		if (userData != null) {
+        			JsonObject sessionJson = Json.createObjectBuilder().add("voayPin", userData.getUserId()).build();
+        			return buildResponse("SSML", "<speak>Hi "+userData.getFirstName()+",!! how can I help you with your " +userData.getPlanName()+ " today</speak>", 
+                			"<speak>You can say, things like tell me how my account is doing? </speak>", "true", sessionJson);
+        		} else {
+        			JsonObject sessionJson = Json.createObjectBuilder().build();
+        			return buildResponse("SSML", "<speak>Invalid PIN or No Account setup!</speak>", 
+                			"", "true", sessionJson);
+        		}
+        	}
+        	 
+        	
+			
+        	 
+         } else {
         	JsonObject sessionJson = Json.createObjectBuilder().build();
         	return buildResponse("SSML", "<speakInvalid PIN or No Account setup!</speak>", "", "true", sessionJson);
         }
         
+        return null;
     }
 	
 	private String buildResponse(String outputSpeechType, String speech, String repromptspeech, String shouldEndSession, JsonObject sessionJson) {
@@ -153,5 +193,24 @@ public class AlexaSkillService {
  
 	}
 	
+	private UserData getUserData(String userId) {
+		if (userDataMap != null) {
+			return userDataMap.get(userId);
+		} else {
+			return null;
+		}
+	}
+	
+	
+	 private void initializeUserData() {
+	        if (userDataMap == null) {
+	        	userDataMap = new HashMap<String, UserData>();
+	        	userDataMap.put("1111", new UserData("1111","Srini","Kunkalaguntla","Voya 401(K) Savings Plan","$55000","2%","3%","44"));
+	        	userDataMap.put("2222", new UserData("2222","Tom","Armstrong","Voya 401(K) Savings Plan ","$55000","3%","3%","50"));
+	        	userDataMap.put("3333", new UserData("3333","Sandesh","Parulekar","Voya 401(K) Savings Plan ","$55000","35","3%","46"));
+	        	userDataMap.put("4444", new UserData("4444","Ruchi","Gupta","Voya 401(K) Savings Plan ","$55000","4%","3%","40"));
+	        	
+	        }
+	    }
  
 }
