@@ -85,6 +85,9 @@ public class AlexaSkillService {
         			return buildResponse("SSML", "<speak>Invalid PIN or No Account setup!</speak>", 
                 			"", "true", sessionJson);
         		}
+        	} else if ( attribute_jsondata!= null && attribute_jsondata.getString("voayPin") != "" ) {
+        		UserData userData = getUserData(attribute_jsondata.getString("voayPin"));
+        		//need to continue for all questions and rest of conditions
         	}
         	 
         	
