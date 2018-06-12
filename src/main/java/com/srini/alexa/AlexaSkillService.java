@@ -41,24 +41,61 @@ public class AlexaSkillService {
         JsonObject alexaRequestObject = reader.readObject();
         
         JsonObject session_jsondata = alexaRequestObject.getJsonObject("session");
-        JsonObject context_jsondata = alexaRequestObject.getJsonObject("context");
+        //JsonObject context_jsondata = alexaRequestObject.getJsonObject("context");
         JsonObject request_jsondata = alexaRequestObject.getJsonObject("request");
         
         if ("LaunchRequest".equalsIgnoreCase(request_jsondata.getString("type")) ) {
-            //console.log('In side LaunchRequest :\n', req.body.request.type);
+            //log('In side LaunchRequest :\n', req.body.request.type);
     		//var dataRow = readData(inputId);
     		//console.log('datRow :', dataRow );
     		//console.log('Excel First Name :\n', dataRow.FirstName);
     		
-        	JsonObject sessionJson = Json.createObjectBuilder().add("questionNo", "0").build();
+        	JsonObject sessionJson = Json.createObjectBuilder().build();
         	
         	return buildResponse("SSML", "<speak>Welcome to Voya 401k service, to get started please say the four digit PIN you setup to enabling the skill? </speak>", 
-        			"<speak>to get started please say the four digit PIN you setup to enabling the skill?</speak>", "true", sessionJson);
+        			"<speak>to get started please say the four digit PIN you setup to enabling the skill?</speak>", "false", sessionJson);
    		
-        } else {
+        } else if ("SessionEndedRequest".equalsIgnoreCase(request_jsondata.getString("type"))) {
+    		//console.log('In side SessionEndedRequest :\n', req.body.request.type);
+            if ("ERROR".equalsIgnoreCase(request_jsondata.getString("reason"))) {
+               // log.error("Alexa ended the session due to an error");
+            }
+            /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+             Per Alexa docs, we shouldn't send ANY response here... weird, I know.
+             * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+         } else if ("IntentRequest".equalsIgnoreCase(request_jsondata.getString("type"))) {
+        	//get Intent Json object
+        	JsonObject intent_jsondata = request_jsondata.getJsonObject("intent");
+        	//get slots Json object
+        	JsonObject slots_jsondata = intent_jsondata.getJsonObject("slots");
+        	//get session attributes json object
+        	JsonObject attribute_jsondata = session_jsondata.getJsonObject("attributes");
+        	
+        	if ( "VoyaPINIntent".equalsIgnoreCase(intent_jsondata.getString("name")) && (slots_jsondata != null) && (slots_jsondata.getJsonObject("pin") != null) 
+        			&& ((slots_jsondata.getJsonObject("pin")).getString("value") != "" )) {
+        		UserData userData = getUserData((slots_jsondata.getJsonObject("pin")).getString("value"));
+        		
+        		if (userData != null) {
+        			JsonObject sessionJson = Json.createObjectBuilder().add("voayPin", userData.getUserId()).build();
+        			return buildResponse("SSML", "<speak>Hi "+userData.getFirstName()+",!! how can I help you with your " +userData.getPlanName()+ " today</speak>", 
+                			"<speak>You can say, things like tell me how my account is doing? </speak>", "true", sessionJson);
+        		} else {
+        			JsonObject sessionJson = Json.createObjectBuilder().build();
+        			return buildResponse("SSML", "<speak>Invalid PIN or No Account setup!</speak>", 
+                			"", "true", sessionJson);
+        		}
+        	}
+        	 
+        	
+			
+        	 
+         } else {
         	JsonObject sessionJson = Json.createObjectBuilder().build();
         	return buildResponse("SSML", "<speakInvalid PIN or No Account setup!</speak>", "", "true", sessionJson);
         }
+        
+        return null;
         
     }
 	
