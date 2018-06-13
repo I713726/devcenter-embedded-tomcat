@@ -1,0 +1,231 @@
+package com.srini.restweb.restservice.resources;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
+
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+
+import com.srini.restweb.restservice.model.Product;
+import com.srini.restweb.restservice.model.Status;
+import com.srini.restweb.restservice.model.alexa.AlexaRequest;
+
+@Path("/productcatalog")
+public class ProductCatalogResource {
+
+    private static List<Product> productCatalog;
+
+    public ProductCatalogResource() {
+        initializeProductCatalog();
+    }
+
+    @GET
+    @Path("/search/category/{category}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<Product> searchByCategory(@PathParam("category") String category) {
+
+        List<Product> products = new ArrayList<Product>();
+
+        for (Product p : productCatalog) {
+            if (category != null && category.equalsIgnoreCase(p.getCategory())) {
+                products.add(p);
+            }
+        }
+
+        return products;//.toArray(new Product[products.size()]);
+    }
+    
+    @GET
+    @Path("/search/name/{name}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Product[] searchByName(@PathParam("name") String name) {
+
+    	 List<Product> products = new ArrayList<Product>();
+
+        for (Product p : productCatalog) {
+            if (name != null && p.getName().toLowerCase().contains(name.toLowerCase())) {
+                products.add(p);
+            }
+        }
+
+        return products.toArray(new Product[products.size()]);
+    }
+    
+    @GET
+    @Path("/searchall")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Product[] searchAll() {
+
+    	 List<Product> products = new ArrayList<Product>();
+
+        for (Product p : productCatalog) {
+            //if (name != null && name.toLowerCase().startsWith(p.getName().toLowerCase())) {
+                products.add(p);
+            //}
+        }
+
+        return products.toArray(new Product[products.size()]);
+    }
+    
+    @POST
+    @Path("/insert")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Status insert(Product product) {
+        productCatalog.add(product);
+        return new Status("SUCCESS", "Inserted " + product.getName());
+    }
+    
+    @POST
+    @Path("/insertRequest")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Status insert(AlexaRequest alexaRequest) {
+        return new Status("SUCCESS", "Inserted " + alexaRequest.getVersion());
+    }
+
+    private void initializeProductCatalog() {
+        if (productCatalog == null) {
+            productCatalog = new ArrayList<Product>();
+            productCatalog.add(new Product(1, "Keyboard", "Electronics", 29.99D));
+            productCatalog.add(new Product(2, "Mouse", "Electronics", 9.95D));
+            productCatalog.add(new Product(3, "17\" Monitor", "Electronics", 159.49D));
+            productCatalog.add(new Product(4, "Hammer", "Hardware", 9.95D));
+            productCatalog.add(new Product(5, "Screwdriver", "Hardware", 7.95D));
+            productCatalog.add(new Product(6, "English Dictionary", "Books", 11.39D));
+            productCatalog.add(new Product(7, "A House in Bali", "Books", 15.99D));
+            productCatalog.add(new Product(8, "An Alaskan Odyssey", "Books", 799.99D));
+            productCatalog.add(new Product(9, "LCD Projector", "Electronics", 1199.19D));
+            productCatalog.add(new Product(10, "Smart Thermostat", "Electronics", 1199.19D));
+        }
+    }
+    
+    
+    @POST
+    @Path("/testjsondata")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public String testJsonData(@Context HttpHeaders httpHeaders, String alexaRequest) throws Exception{
+       
+    	
+    	/** get list of all header parameters from request **/
+		Set<String> headerKeys = httpHeaders.getRequestHeaders().keySet();
+		for(String header:headerKeys){
+			System.out.println(header+":"+httpHeaders.getRequestHeader(header).get(0));
+		}
+		
+		JSONParser parse = new JSONParser();
+		//Type caste the parsed json data in json object
+		JSONObject jobj = (JSONObject)parse.parse(alexaRequest);
+		//System.out.println("Elements input json jobj"+jobj);
+		//Store the JSON object in JSON array as objects (For level 1 array element i.e Results)
+		JSONObject session_jsondata = (JSONObject) jobj.get("session");
+		JSONObject context_jsondata = (JSONObject) jobj.get("context");
+		JSONObject request_jsondata = (JSONObject) jobj.get("request");
+    	
+    	if ("LaunchRequest".equalsIgnoreCase((String)request_jsondata.get("type")) ) {
+            //console.log('In side LaunchRequest :\n', req.body.request.type);
+    		//var dataRow = readData(inputId);
+    		//console.log('datRow :', dataRow );
+    		//console.log('Excel First Name :\n', dataRow.FirstName);
+    		JSONObject sessionJson = new JSONObject();
+    		sessionJson.put("questionNo", "3");
+            
+        	return buildResponse("SSML", "<speak>Welcome to Voya 401k service, to get started please say the four digit PIN you setup to enabling the skill? </speak>", 
+        			"<speak>to get started please say the four digit PIN you setup to enabling the skill?</speak>", "true", sessionJson);
+   		
+        } else {
+        	JSONObject sessionJson = new JSONObject();
+        	return buildResponse("SSML", "<speakInvalid PIN or No Account setup!</speak>", "", "true", sessionJson);
+        }
+    }
+    
+    
+	private String buildResponse(String outputSpeechType, String speech, String repromptspeech, String shouldEndSession, JSONObject sessionJson) {
+		
+		JSONObject alexaJsonResponseObj = new JSONObject();
+		alexaJsonResponseObj.put("version", "1.0");
+		alexaJsonResponseObj.put("sessionAttributes", sessionJson);
+		
+		JSONObject responseObj = new JSONObject();
+		responseObj.put("shouldEndSession", shouldEndSession);
+		
+			JSONObject outputSpeechObj = new JSONObject();
+			outputSpeechObj.put("type", outputSpeechType);
+			outputSpeechObj.put("ssml", speech);
+		
+			responseObj.put("outputSpeech", outputSpeechObj);
+			
+			JSONObject repromptObj = new JSONObject();
+			
+			JSONObject repromptoutputSpeechObj = new JSONObject();
+			repromptoutputSpeechObj.put("type", outputSpeechType);
+			repromptoutputSpeechObj.put("ssml", speech);
+			
+			repromptObj.put("outputSpeech", repromptoutputSpeechObj);
+			
+			responseObj.put("outputSpeech", outputSpeechObj);
+			responseObj.put("reprompt", repromptObj);
+		
+		alexaJsonResponseObj.put("response", responseObj);
+		
+		
+         
+        
+        return alexaJsonResponseObj.toJSONString();
+		
+	}
+    
+	
+	/*
+	 * http://www.java2s.com/Tutorials/Java/JSON/0100__JSON_Java.htm
+	 {
+        version: VERSION,
+        sessionAttributes: session,
+        response: {
+            outputSpeech: {
+                type: 'SSML',
+                ssml: speech
+            },
+			reprompt : {
+				outputSpeech: {
+					type: 'SSML',
+					ssml: reprompt
+				}
+			},
+            //card: card,
+            shouldEndSession: !!end
+        }
+    }
+	 */
+	
+	
+    private void parseJsonRequestString(String jsonRequest) throws Exception {
+		System.out.println("Elements input json"+jsonRequest);
+		//Parse the JSON data present in the string format
+		JSONParser parse = new JSONParser();
+		//Type caste the parsed json data in json object
+		JSONObject jobj = (JSONObject)parse.parse(jsonRequest);
+		System.out.println("Elements input json jobj"+jobj);
+		//Store the JSON object in JSON array as objects (For level 1 array element i.e Results)
+		JSONObject session_jsonarr = (JSONObject) jobj.get("session");
+		JSONObject context_jsonarr = (JSONObject) jobj.get("context");
+		JSONObject request_jsonarr = (JSONObject) jobj.get("request");
+		System.out.println("Elements input json session_jsonarr"+session_jsonarr);
+		System.out.println("Elements input context_jsonarr jsonarr_1"+context_jsonarr);
+		System.out.println("Elements input json request_jsonarr"+request_jsonarr);
+		System.out.println("Elements input json request_jsonarr"+request_jsonarr.get("type"));
+
+	}
+}
